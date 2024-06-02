@@ -539,6 +539,7 @@ urlpatterns = [
     path('purchasebill_checkgphn', views.purchasebill_checkgphn, name='purchasebill_checkgphn'),
     
     path('get_available_invoices/', views.get_available_invoices, name='get_available_invoices'),
+    path('send_cash_flow_report_via_mail',views.send_cash_flow_report_via_mail,name='send_cash_flow_report_via_mail'),
     
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     

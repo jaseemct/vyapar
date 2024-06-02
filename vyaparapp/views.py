@@ -59,6 +59,7 @@ from openpyxl.styles import Font
 import math
 from django.db.models import Subquery
 
+
 # Create your views here.
 def home(request):
   return render(request, 'home.html')
@@ -16078,7 +16079,105 @@ def chequeEmail(request):
 
 
 # created by Muhammed Jaseem>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-from django.shortcuts import render
+
 
 def cashflow_report(request):
-    return render(request,'company/cash-flow-report.html')
+    id=request.session.get('staff_id')
+    staff=staff_details.objects.get(id=id)
+    cashinhand= cash_in_hand.objects.filter(company=staff.company)
+    purchase= PurchaseBill.objects.filter(company=staff.company)  
+    sales=SalesInvoice.objects.filter(company=staff.company)
+    
+    
+    cash_in = 0  
+
+    for c in cashinhand:
+
+     if c.cash_adjust == 'ADD CASH':
+        cash_in += int(c.cash_cash)
+   
+    for s in sales:
+      try:
+        cash_in += int(float(s.paidoff))
+      except ValueError:
+       cash_in += 0 
+
+
+
+    cash_out=0
+    
+    for c in cashinhand:
+      if c.cash_adjust == 'REDUCE CASH':
+        cash_out += int(c.cash_cash)
+    
+    for p in purchase:
+      cash_out += int(p.grandtotal)
+    
+    balance=cash_in-cash_out
+    
+    
+    
+    return render(request, 'company/cash-flow-report.html', {'cash_in_hand_items': cashinhand , 'sales':sales , 'purchase':purchase, 'cash_in': cash_in  ,'cash_out':cash_out , 'balance':balance ,'staff':staff})
+
+def send_cash_flow_report_via_mail(request):
+    if request.method == 'POST':
+      email = request.POST.get('email')
+      message = request.POST.get('message')
+      cashout = request.POST.get('cashout')
+      total = request.POST.get('total')
+      cashin = request.POST.get('cashin')
+      table_content = request.POST.get('table_content')
+      # Preprocess the table content
+      rows = table_content.strip().split('\n')
+      cleaned_content = table_content.replace('\r\n', '\n').replace('\r', '\n')
+
+      # Split into rows and filter out any empty rows
+      rows = [row.strip() for row in cleaned_content.split('\n') if row.strip()]
+
+      # Split each row by comma
+      table_data = [row.split(',') for row in rows]
+
+
+      # Create HTML content for the PDF
+      template_path = 'company/cashflow_report.html'
+      template = get_template(template_path)
+      content = {
+            'email': email,
+            'message': message,
+            'table_data': table_data,
+            'cashin': cashin,
+            'cashout': cashout,
+            'total': total,
+        }
+      html = template.render(content)
+
+      # Generate PDF
+      result = BytesIO()
+      pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+      pdf = result.getvalue()
+      filename = 'Cash Flow Report.pdf'
+
+      # Send email with PDF attachment
+      email_message = EmailMessage(
+          subject='Cash Flow Report',
+          body=message,
+          from_email=settings.EMAIL_HOST_USER,
+          to=[email]
+      )
+      email_message.attach(filename, pdf, 'application/pdf')
+      email_message.send(fail_silently=False)
+
+      messages.info(request, 'Cash Flow report shared via mail')
+      return redirect('cashflow_report')
+        
+  
+  #if search input
+  
+    # if search:
+    #   if PurchaseBill.objects.filter(billdate__startswith=search):
+    #     id=request.session.get('staff_id')
+    #     staff=staff_details.objects.get(id=id)
+    #     if PurchaseBill.objects.filter(staff=id,billdate__startswith=search).exists:
+    #         purchase_data=PurchaseBill.objects.filter(staff=id,billdate__startswith=search)
+    #         debit_data=purchasedebit.objects.filter(staff=id,billdate__startswith=search)
+        
