@@ -188,7 +188,7 @@
         </a>
     </div>
     <p></p>
-    <div class="row ps-5 pe-3 m-0" >
+    <div class="row ps-3 pe-3 m-0" >
         <div class="col-sm-12">
             <div class="row pt-0 m-0">
                 <div class="card p-0 bg-light bs"><br>
@@ -218,24 +218,25 @@
                                     </div>
                                 </div>
                                 <div class="col-md-1"></div>
-                                <div class="col-md-4 text-right" style="margin-left: 6vh;">
-                                    <button class="btn mt-3" type="button" onclick="exportAsExcel()" style="margin-right: 2vh; margin-left: 5vh;">
-                                        <span><img width="22px" src="{% static 'assets/excel2.png' %}" alt="no img"></span>
+                                <div class="col-md-4 ps-5 text-right" style="margin-left: 12vh;">
+                                    <button class="btn mt-3" type="button" onclick="exportAsExcel()" style="margin-left: 7vh;">
+                                        <span><img width="30px" src="{% static 'assets/excel2.png' %}" alt="no img"></span>
                                         <br><span style="color: black; font-size: small; font-weight: bold;">Excel</span>
                                     </button>
                                     <button class="btn mt-3" type="button" title="export to PDF" onclick="exportAsPDF()">
                                         <span><img width="25px" src="{% static 'images/PDF_icon.png' %}" alt="no img"></span>
                                         <br><span style="color: black; font-size: small; font-weight: bold;">Pdf</span>
                                     </button>
-                                    <button class="btn mt-3" type="button" onclick="printfunction()" style="margin-right: 2vh;">
-                                        <span><img width="30px" src="{% static 'images/printer.jpeg' %}" alt="no img"></span>
+                                    <button class="btn mt-3" type="button" onclick="printfunction()" >
+                                        <span><img width="30px" src="{% static 'images/printer.jpeg' %}" alt="no img" sty></span>
                                         <br><span style="color: black; font-size: small; font-weight: bold;">Print</span>
                                     </button>
 
                                     <a class="btn p-0 ps-2" title="share">
                                         <div class="btn-group dropleft">
-                                            <a class="dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="fa-solid fa-share"></i>
+                                            <a class="dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: black;">
+                                                <img width="30px" src="{% static 'images/shareimg.png' %}" alt="Share Image" style="margin-top: 15px;"> <br>
+                                                <span style="color: black; font-size: small; font-weight: bold;">Share</span>
                                             </a>
                                             <div class="dropdown-menu">
                                                 <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal2">
@@ -432,59 +433,58 @@
                                         </th>
                                     </thead>
                                     <tbody>
-                                        {% for c in cash_in_hand_items %}
+                                        {% for p in cash %}
                                         <tr>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{ c.cash_date | date:'d-m-Y' }}</td>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">-</td>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{c.cash_description}}</td>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{c.cash_adjust}}</td>
+                                            <td class="clickable-row" style="color: black;" >{{p.cash_date | date:'d-m-Y'}}</td>
+                                            <td class="clickable-row" style="color: black;">-</td>
+                                            <td class="clickable-row" style="color: black;" >{{p.cash_description}}</td>
+                                            <td class="clickable-row" style="color: black;" >{{p.cash_adjust}}</td>
                                             <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
-                                                {% if c.cash_adjust and c.cash_adjust == 'ADD CASH' %}
-                                                        {{ c.cash_cash }}
+                                                {% if p.cash_adjust and p.cash_adjust == 'ADD CASH' %}
+                                                        {{ p.cash_cash }}
                                                 {% else %}
                                                     0
                                                 {% endif %}
                                             </td>
                                             
                                             
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{% if c.cash_adjust and c.cash_adjust == 'REDUCE CASH' %}
-                                                    {{ c.cash_cash }}
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{% if p.cash_adjust and p.cash_adjust == 'REDUCE CASH' %}
+                                                    {{ p.cash_cash }}
                                                 
                                             {% else %}
                                                 0
                                             {% endif %}</td>
-                                       
-                                            
-                    
                                            
                                         </tr>
                                         {% endfor %}
-
-                                        {% for s in sales %}
+                                        {% for a in bnk%}
+                                        {% if a.amount != "0" %}
                                         <tr>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{ s.date | date:'d-m-Y' }}</td>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{s.invoice_no}}</td>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{s.party.party_name}}</td>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">Sales</td>
+                                            <td>{{ a.date | date:'d-m-Y' }}</td>
+                                            <td>-</td>
+                                            <td>{{a.by}}</td>
+                                            <td>{{ a.type|upper }}</td>
                                             <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
-                                                {% if s.paidoff  %}
-                                                        {{ s.paidoff }}
+                                                {% if a.type and a.type|upper == 'CASH DEPOSIT' %}
+                                                        {{ a.amount }}
                                                 {% else %}
                                                     0
                                                 {% endif %}
                                             </td>
-                                            
-                                            
-                                            
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
-                                            
-                                           
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                                                {% if a.type and a.type|upper == 'CASH WITHDRAW' %}
+                                                        {{ a.amount }}
+                                                {% else %}
+                                                    0
+                                                {% endif %}
+                                            </td>
                                         </tr>
+                                        {%endif%}
                                         {% endfor %}
 
-                                        {% for p in purchase %}
-                                        <tr>
-                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{ p.billdate | date:'d-m-Y' }}</td>
+                                        {% for p in bill %}
+                                        {% if p.advance != "0.00" %}
+                                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{ p.billdate | date:'d-m-Y' }}</td>
                                             <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.billno}}</td>
                                             <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.party.party_name}}</td>
                                             <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">Purchase</td>
@@ -493,16 +493,208 @@
                                             
                                             
                                             <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
-                                                {% if p.grandtotal  %}
-                                                {{ p.grandtotal }}
+                                                {% if p.advance  %}
+                                                {{ p.advance }}
                                         {% else %}
                                             0
                                         {% endif %}
                                             </td>
                                            
                                         </tr>
+                                     
+                                        </tr>
+                                        {%endif%}
                                         {% endfor %}
-                                        <!-- <tr><td><b>Total</b></td><td></td><td></td><td></td> <td><b>{{cash_in}}</b></td><td><b>{{cash_out}}</b></td></tr> -->
+                                        {% for po in porder %}
+                                        {% if po.advance != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{po.orderdate | date:'d-m-Y'}}</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.billno}}</td>
+                
+                                            <td class="clickable-row" style="color: black;" >{{po.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >PURCHASE ORDER</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                                                {% if p.grandtotal  %}
+                                                {{ p.grandtotal }}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+
+                                           
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for pd in pdebt %}
+                                        {% if pd.paid_amount != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{pd.debitdate | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{pd.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >DEBIT NOTE</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+
+                                            <td class="clickable-row" style="color: black;" >{{pd.paid_amount}}</td>
+
+                                           
+                                            <td class="pt-3 m-0 extra">
+                                                <i class="fa fa-ellipsis-v text-muted" ></i>
+                                            </td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+                                        
+
+                                        
+                                        {% for si in sinv %}
+                                        {% if si.paidoff != "0.00" %}
+
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{si.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{si.invoice_no}}</td>
+                                            <td class="clickable-row" style="color: black;" >{{si.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >SALES INVOICE</td>
+                                            <td class="clickable-row" style="color: black;" >{{si.paidoff}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                           
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for sp in spin %}
+                                        {% if sp.payment_received != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{sp.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{sp.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >PAYMENT IN</td>
+                                            <td class="clickable-row" style="color: black;" >{{sp.payment_received}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for so in sorder %}
+                                        {% if so.paid != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{so.orderdate | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{so.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >SALES ORDER</td>
+                                            <td class="clickable-row" style="color: black;" >{{so.paid}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for sc in scredit %}
+                                        {% if sc.advance != "0.00" %}
+
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{sc.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{sc.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >CREDIT NOTE</td>
+                                            <td class="clickable-row" style="color: black;" >{{sc.advance}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                           
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% for ex in exp %}
+                                        {% if ex.paid != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{ex.expense_date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{ex.party_id.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >EXPENSE</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                            <td class="clickable-row" style="color: black;" >{{ex.paid}}</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                         {% for l in loan %}
+                                         {% if l.loan_amount != "0" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{l.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{l.account_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >LOAN ACCOUNT</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                            <td class="clickable-row" style="color: black;" >{{l.loan_amount}}</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                   {% for la in loanadd %}
+                                   {% if la.transaction_type == 'Additional Loan' %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{la.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{la.loan_account.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >ADDITIONAL LOAN</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                            <td class="clickable-row" style="color: black;" >{{la.payment}}</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for lr in lrepay %}
+                                        {% if lr.transaction_type == 'EMI' %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{lr.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{lr.loan_account.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >EMI PAID</td>
+                                            <td class="clickable-row" style="color: black;" >{{lr.payment}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                        
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+                                      <!-- Assuming you're looping through cash payments in your template context -->
+                                      {% for paymentout in paymentouts %}
+                                       
+                                        <tr>
+                                        <td> {{ paymentout.billdate| date:'d-m-Y' }}</td>
+                                       
+                                        <td>{{paymentout.party.party_name}}</td>
+                                        <td>PAYMENT OUT</td>
+                                        <!-- Retrieve PaymentOutDetails related to this PaymentOut -->
+                                        {% for paymentout_detail in paymentout.paymentoutdetails_set.all %}
+                                               
+                                                    <td>{{ paymentout_detail.paid }}</td>
+                                             {% endfor %}
+                                                <td class="pt-3 m-0 extra">
+                                                    <i class="fa fa-ellipsis-v text-muted" ></i>
+                                                </td>
+                                    </tr>
+                                  
+                                        {% endfor %}
+
                                     </tbody>
                                 </table>
 
@@ -951,13 +1143,13 @@
     
 </script>
 
-<script>
+<!-- <script>
     jQuery(document).ready(function($) {
         $(".clickable-row").click(function() {
             window.location = $(this).data("href");
         });
     });
-</script>
+</script> -->
 
 
 

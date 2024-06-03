@@ -16083,41 +16083,57 @@ def chequeEmail(request):
 
 def cashflow_report(request):
     id=request.session.get('staff_id')
-    staff=staff_details.objects.get(id=id)
-    cashinhand= cash_in_hand.objects.filter(company=staff.company)
-    purchase= PurchaseBill.objects.filter(company=staff.company)  
-    sales=SalesInvoice.objects.filter(company=staff.company)
+    staff = get_object_or_404(staff_details, id=id)
+    cmp = get_object_or_404(company, id=staff.company.id)
+    allmodules = get_object_or_404(modules_list, company=cmp, status='New')
+    cash = cash_in_hand.objects.filter(company=cmp)
+    bnk = BankTransactionModel.objects.filter(company=cmp).filter(Q(type__iexact='cash withdraw') | Q(type__iexact='cash deposit'))
+    bill = PurchaseBill.objects.filter(company=cmp, pay_method__iexact='Cash', advance__gt=0)
+    
+    porder = PurchaseOrder.objects.filter(pay_method__iexact='Cash', company=cmp,advance__gt=0)
+    pdebt = purchasedebit.objects.filter(payment_type__iexact='Cash', company=cmp,paid_amount__gt=0)
+    paymentouts = PaymentOut.objects.filter(pay_method__iexact='cash', company=cmp)
+    sinv = SalesInvoice.objects.filter(paymenttype__iexact='Cash', company=cmp, paidoff__gt=0)
+    spin = PaymentIn.objects.filter(payment_method__iexact='Cash', company=cmp,payment_received__gt=0)
+    sorder = salesorder.objects.filter(payment_method__iexact='Cash', comp=cmp,paid__gt=0)
+    scredit = CreditNote.objects.filter(pay_method__iexact='Cash', company=cmp,advance__gt=0)
+    exp = Expense.objects.filter(payment_type__iexact='Cash', staff_id__company=cmp,paid__gt=0)
+    loan = LoanAccounts.objects.filter(loan_received__iexact='Cash', company=cmp,loan_amount__gt=0)
+    loanadd = TransactionTable.objects.filter(loan_received__iexact='cash', company=cmp,payment__gt=0)
+    lrepay = TransactionTable.objects.filter(loan_received__iexact='CASH', company=cmp,payment__gt=0)
     
     
-    cash_in = 0  
+    # cash_in = 0  
 
-    for c in cashinhand:
+    # for c in cashinhand:
 
-     if c.cash_adjust == 'ADD CASH':
-        cash_in += int(c.cash_cash)
+    #  if c.cash_adjust == 'ADD CASH':
+    #     cash_in += int(c.cash_cash)
    
-    for s in sales:
-      try:
-        cash_in += int(float(s.paidoff))
-      except ValueError:
-       cash_in += 0 
+    # for s in sales:
+    #   try:
+    #     cash_in += int(float(s.paidoff))
+    #   except ValueError:
+    #    cash_in += 0 
 
 
 
-    cash_out=0
+    # cash_out=0
     
-    for c in cashinhand:
-      if c.cash_adjust == 'REDUCE CASH':
-        cash_out += int(c.cash_cash)
+    # for c in cashinhand:
+    #   if c.cash_adjust == 'REDUCE CASH':
+    #     cash_out += int(c.cash_cash)
     
-    for p in purchase:
-      cash_out += int(p.grandtotal)
+    # for p in purchase:
+    #   cash_out += int(p.grandtotal)
     
-    balance=cash_in-cash_out
+    # balance=cash_in-cash_out
     
     
-    
-    return render(request, 'company/cash-flow-report.html', {'cash_in_hand_items': cashinhand , 'sales':sales , 'purchase':purchase, 'cash_in': cash_in  ,'cash_out':cash_out , 'balance':balance ,'staff':staff})
+    context = {'staff': staff, 'allmodules': allmodules, 'cash': cash, 'bill': bill, 'porder': porder,
+               'pdebt': pdebt, 'sinv': sinv, 'spin': spin, 'sorder': sorder, 'scredit': scredit, 'exp': exp,
+               'loan': loan, 'loanadd': loanadd, 'lrepay': lrepay, 'paymentouts': paymentouts,'bnk':bnk}
+    return render(request, 'company/cash-flow-report.html', context)
 
 def send_cash_flow_report_via_mail(request):
     if request.method == 'POST':
