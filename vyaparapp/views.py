@@ -16153,6 +16153,14 @@ def send_cash_flow_report_via_mail(request):
       # Split each row by comma
       table_data = [row.split(',') for row in rows]
 
+      response = ''
+
+      # for sub_array in table_data:
+      #     for item in sub_array:
+      #         response += item + '***'
+      #     response += '<br>'
+      # return HttpResponse(response)
+
 
       # Create HTML content for the PDF
       template_path = 'company/cashflow_report.html'
@@ -16165,11 +16173,12 @@ def send_cash_flow_report_via_mail(request):
             'cashout': cashout,
             'total': total,
         }
+      # return render(request, template_path, content)
       html = template.render(content)
 
       # Generate PDF
       result = BytesIO()
-      pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+      pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
       pdf = result.getvalue()
       filename = 'Cash Flow Report.pdf'
 

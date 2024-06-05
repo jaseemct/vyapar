@@ -572,7 +572,8 @@
                                         {% if sp.payment_received != "0.00" %}
                                         <tr>
                                             <td class="clickable-row" style="color: black;" >{{sp.date | date:'d-m-Y'}}</td>
-                                          
+                                            <td class="clickable-row" style="color: black;" >{{sp.rec_no}}</td>
+                                            
                                             <td class="clickable-row" style="color: black;" >{{sp.party.party_name}}</td>
                                             <td class="clickable-row" style="color: black;" >PAYMENT IN</td>
                                             <td class="clickable-row" style="color: black;" >{{sp.payment_received}}</td>
@@ -680,17 +681,16 @@
                                        
                                         <tr>
                                         <td> {{ paymentout.billdate| date:'d-m-Y' }}</td>
-                                       
+                                        <td>{{paymentout.ref_no}}</td>
                                         <td>{{paymentout.party.party_name}}</td>
                                         <td>PAYMENT OUT</td>
+                                        <td>0</td>
                                         <!-- Retrieve PaymentOutDetails related to this PaymentOut -->
                                         {% for paymentout_detail in paymentout.paymentoutdetails_set.all %}
                                                
                                                     <td>{{ paymentout_detail.paid }}</td>
                                              {% endfor %}
-                                                <td class="pt-3 m-0 extra">
-                                                    <i class="fa fa-ellipsis-v text-muted" ></i>
-                                                </td>
+                                                
                                     </tr>
                                   
                                         {% endfor %}
@@ -717,63 +717,267 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for c in cash_in_hand_items %}
+                                        {% for p in cash %}
                                         <tr>
-                                            <td>{{ c.cash_date | date:'d-m-Y' }}</td>
+                                            <td class="clickable-row" style="color: black;" >{{p.cash_date | date:'d-m-Y'}}</td>
+                                            <td class="clickable-row" style="color: black;">-</td>
+                                            <td class="clickable-row" style="color: black;" >{{p.cash_description}}</td>
+                                            <td class="clickable-row" style="color: black;" >{{p.cash_adjust}}</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                                                {% if p.cash_adjust and p.cash_adjust == 'ADD CASH' %}
+                                                        {{ p.cash_cash }}
+                                                {% else %}
+                                                    0
+                                                {% endif %}
+                                            </td>
+                                            
+                                            
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{% if p.cash_adjust and p.cash_adjust == 'REDUCE CASH' %}
+                                                    {{ p.cash_cash }}
+                                                
+                                            {% else %}
+                                                0
+                                            {% endif %}</td>
+                                           
+                                        </tr>
+                                        {% endfor %}
+                                        {% for a in bnk%}
+                                        {% if a.amount != "0" %}
+                                        <tr>
+                                            <td>{{ a.date | date:'d-m-Y' }}</td>
                                             <td>-</td>
-                                            <td>{{ c.cash_description }}</td>
-                                            <td>{{ c.cash_adjust }}</td>
-                                            <td>
-                                                {% if c.cash_adjust and c.cash_adjust == 'ADD CASH' %}
-                                                {{ c.cash_cash }}
+                                            <td>{{a.by}}</td>
+                                            <td>{{ a.type|upper }}</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                                                {% if a.type and a.type|upper == 'CASH DEPOSIT' %}
+                                                        {{ a.amount }}
                                                 {% else %}
-                                                0
+                                                    0
                                                 {% endif %}
                                             </td>
-                                            <td>
-                                                {% if c.cash_adjust and c.cash_adjust == 'REDUCE CASH' %}
-                                                {{ c.cash_cash }}
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                                                {% if a.type and a.type|upper == 'CASH WITHDRAW' %}
+                                                        {{ a.amount }}
                                                 {% else %}
-                                                0
-                                                {% endif %}
-                                            </td> 
-                                        </tr>
-                                        {% endfor %}
-                                    
-                                        {% for s in sales %}
-                                        <tr>
-                                            <td>{{ s.date | date:'d-m-Y' }}</td>
-                                            <td>{{ s.invoice_no }}</td>
-                                            <td>{{ s.party.party_name }}</td>
-                                            <td>Sales</td>
-                                            <td>
-                                                {% if s.paidoff %}
-                                                {{ s.paidoff }}
-                                                {% else %}
-                                                0
+                                                    0
                                                 {% endif %}
                                             </td>
-                                            <td>0</td>
                                         </tr>
+                                        {%endif%}
                                         {% endfor %}
-                                    
-                                        {% for p in purchase %}
+
+                                        {% for p in bill %}
+                                        {% if p.advance != "0.00" %}
+                                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{ p.billdate | date:'d-m-Y' }}</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.billno}}</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">Purchase</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+                                            
+                                            
+                                            
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                                                {% if p.advance  %}
+                                                {{ p.advance }}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                            </td>
+                                           
+                                        </tr>
+                                     
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% for po in porder %}
+                                        {% if po.advance != "0.00" %}
                                         <tr>
-                                            <td>{{ p.billdate | date:'d-m-Y' }}</td>
-                                            <td>{{ p.billno }}</td>
-                                            <td>{{ p.party.party_name }}</td>
-                                            <td>Purchase</td>
-                                            <td>0</td>
-                                            <td>
-                                                {% if p.grandtotal %}
+                                            <td class="clickable-row" style="color: black;" >{{po.orderdate | date:'d-m-Y'}}</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.billno}}</td>
+                
+                                            <td class="clickable-row" style="color: black;" >{{po.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >PURCHASE ORDER</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                                                {% if p.grandtotal  %}
                                                 {{ p.grandtotal }}
-                                                {% else %}
-                                                0
-                                                {% endif %}
-                                            </td>
+                                        {% else %}
+                                            0
+                                        {% endif %}
+
+                                           
+                                       
                                         </tr>
+                                        {%endif%}
                                         {% endfor %}
-                                        <!-- <tr><td><b>Total</b></td><td></td><td></td><td></td> <td><b>{{cash_in}}</b></td><td><b>{{cash_out}}</b></td></tr> -->
+
+                                        {% for pd in pdebt %}
+                                        {% if pd.paid_amount != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{pd.debitdate | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{pd.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >DEBIT NOTE</td>
+                                            <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+
+                                            <td class="clickable-row" style="color: black;" >{{pd.paid_amount}}</td>
+
+                                           
+                                            <td class="pt-3 m-0 extra">
+                                                <i class="fa fa-ellipsis-v text-muted" ></i>
+                                            </td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+                                        
+
+                                        
+                                        {% for si in sinv %}
+                                        {% if si.paidoff != "0.00" %}
+
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{si.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{si.invoice_no}}</td>
+                                            <td class="clickable-row" style="color: black;" >{{si.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >SALES INVOICE</td>
+                                            <td class="clickable-row" style="color: black;" >{{si.paidoff}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                           
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for sp in spin %}
+                                        {% if sp.payment_received != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{sp.date | date:'d-m-Y'}}</td>
+                                            <td class="clickable-row" style="color: black;" >{{sp.rec_no}}</td>
+                                            
+                                            <td class="clickable-row" style="color: black;" >{{sp.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >PAYMENT IN</td>
+                                            <td class="clickable-row" style="color: black;" >{{sp.payment_received}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for so in sorder %}
+                                        {% if so.paid != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{so.orderdate | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{so.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >SALES ORDER</td>
+                                            <td class="clickable-row" style="color: black;" >{{so.paid}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for sc in scredit %}
+                                        {% if sc.advance != "0.00" %}
+
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{sc.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{sc.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >CREDIT NOTE</td>
+                                            <td class="clickable-row" style="color: black;" >{{sc.advance}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                           
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% for ex in exp %}
+                                        {% if ex.paid != "0.00" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{ex.expense_date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >{{ex.party_id.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >EXPENSE</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                            <td class="clickable-row" style="color: black;" >{{ex.paid}}</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                         {% for l in loan %}
+                                         {% if l.loan_amount != "0" %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{l.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{l.account_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >LOAN ACCOUNT</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                            <td class="clickable-row" style="color: black;" >{{l.loan_amount}}</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                   {% for la in loanadd %}
+                                   {% if la.transaction_type == 'Additional Loan' %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{la.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{la.loan_account.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >ADDITIONAL LOAN</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+                                            <td class="clickable-row" style="color: black;" >{{la.payment}}</td>
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+
+                                        {% for lr in lrepay %}
+                                        {% if lr.transaction_type == 'EMI' %}
+                                        <tr>
+                                            <td class="clickable-row" style="color: black;" >{{lr.date | date:'d-m-Y'}}</td>
+                                          
+                                            <td class="clickable-row" style="color: black;" >-</td>
+                                            <td class="clickable-row" style="color: black;" >{{lr.loan_account.party.party_name}}</td>
+                                            <td class="clickable-row" style="color: black;" >EMI PAID</td>
+                                            <td class="clickable-row" style="color: black;" >{{lr.payment}}</td>
+                                            <td class="clickable-row" style="color: black;" >0</td>
+
+                                        
+                                       
+                                        </tr>
+                                        {%endif%}
+                                        {% endfor %}
+                                      <!-- Assuming you're looping through cash payments in your template context -->
+                                      {% for paymentout in paymentouts %}
+                                       
+                                      <tr>
+                                        <td> {{ paymentout.billdate| date:'d-m-Y' }}</td>
+                                        <td>{{paymentout.ref_no}}</td>
+                                        <td>{{paymentout.party.party_name}}</td>
+                                        <td>PAYMENT OUT</td>
+                                        <td>0</td>
+                                        <!-- Retrieve PaymentOutDetails related to this PaymentOut -->
+                                        {% for paymentout_detail in paymentout.paymentoutdetails_set.all %}
+                                               
+                                                    <td>{{ paymentout_detail.paid }}</td>
+                                             {% endfor %}
+                                                
+                                    </tr>
+                                  
+                                        {% endfor %}
 
                                     </tbody>
                                 </table>
@@ -873,7 +1077,7 @@
 
 
 
-  <div id="content" hidden>
+  <div id="content" style="width: 0; height: 0; overflow: hidden;">
     <div id="content1">
         <h2 style="text-align: center; color:red;">{{staff.company.company_name}}</h2>
         <h4 style="text-align: center;">Cash flow Report</h4>
@@ -919,38 +1123,268 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for c in cash_in_hand_items %}
-                    <tr class="clickable-row" data-href="details_purchasebill/{{ c.id }}">
-                        <td style="color: black;">{{ c.cash_date | date:'d-m-Y' }}</td>
-                        <td style="color: black;">-</td>
-                        <td style="color: black;">{{ c.cash_description }}</td>
-                        <td style="color: black;">{{ c.cash_adjust }}</td>
-                        <td style="color: black;">{% if c.cash_adjust and c.cash_adjust == 'ADD CASH' %}{{ c.cash_cash }}{% else %}0{% endif %}</td>
-                        <td style="color: black;">{% if c.cash_adjust and c.cash_adjust == 'REDUCE CASH' %}{{ c.cash_cash }}{% else %}0{% endif %}</td>
+                    {% for p in cash %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{p.cash_date | date:'d-m-Y'}}</td>
+                        <td class="clickable-row" style="color: black;">-</td>
+                        <td class="clickable-row" style="color: black;" >{{p.cash_description}}</td>
+                        <td class="clickable-row" style="color: black;" >{{p.cash_adjust}}</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                            {% if p.cash_adjust and p.cash_adjust == 'ADD CASH' %}
+                                    {{ p.cash_cash }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                        
+                        
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{% if p.cash_adjust and p.cash_adjust == 'REDUCE CASH' %}
+                                {{ p.cash_cash }}
+                            
+                        {% else %}
+                            0
+                        {% endif %}</td>
+                       
                     </tr>
                     {% endfor %}
+                    {% for a in bnk%}
+                    {% if a.amount != "0" %}
+                    <tr>
+                        <td>{{ a.date | date:'d-m-Y' }}</td>
+                        <td>-</td>
+                        <td>{{a.by}}</td>
+                        <td>{{ a.type|upper }}</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                            {% if a.type and a.type|upper == 'CASH DEPOSIT' %}
+                                    {{ a.amount }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                            {% if a.type and a.type|upper == 'CASH WITHDRAW' %}
+                                    {{ a.amount }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+
+                    {% for p in bill %}
+                    {% if p.advance != "0.00" %}
+                    <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{ p.billdate | date:'d-m-Y' }}</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.billno}}</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">Purchase</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+                        
+                        
+                        
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                            {% if p.advance  %}
+                            {{ p.advance }}
+                    {% else %}
+                        0
+                    {% endif %}
+                        </td>
+                       
+                    </tr>
+                 
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+                    {% for po in porder %}
+                    {% if po.advance != "0.00" %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{po.orderdate | date:'d-m-Y'}}</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">{{p.billno}}</td>
+
+                        <td class="clickable-row" style="color: black;" >{{po.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >PURCHASE ORDER</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">
+                            {% if p.grandtotal  %}
+                            {{ p.grandtotal }}
+                    {% else %}
+                        0
+                    {% endif %}
+
+                       
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+
+                    {% for pd in pdebt %}
+                    {% if pd.paid_amount != "0.00" %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{pd.debitdate | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >{{pd.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >DEBIT NOTE</td>
+                        <td class="clickable-row" style="color: black;" data-href="details_purchasebill/{{ p.id }}">0</td>
+
+                        <td class="clickable-row" style="color: black;" >{{pd.paid_amount}}</td>
+
+                       
+                        <td class="pt-3 m-0 extra">
+                            <i class="fa fa-ellipsis-v text-muted" ></i>
+                        </td>
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+                    
+
+                    
+                    {% for si in sinv %}
+                    {% if si.paidoff != "0.00" %}
+
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{si.date | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >{{si.invoice_no}}</td>
+                        <td class="clickable-row" style="color: black;" >{{si.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >SALES INVOICE</td>
+                        <td class="clickable-row" style="color: black;" >{{si.paidoff}}</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+
+                       
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+
+                    {% for sp in spin %}
+                    {% if sp.payment_received != "0.00" %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{sp.date | date:'d-m-Y'}}</td>
+                        <td class="clickable-row" style="color: black;" >{{sp.rec_no}}</td>
+                                            
+                        <td class="clickable-row" style="color: black;" >{{sp.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >PAYMENT IN</td>
+                        <td class="clickable-row" style="color: black;" >{{sp.payment_received}}</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+
             
-                    {% for s in sales %}
-                    <tr class="clickable-row" data-href="details_purchasebill/{{ s.id }}">
-                        <td style="color: black;">{{ s.date | date:'d-m-Y' }}</td>
-                        <td style="color: black;">{{ s.invoice_no }}</td>
-                        <td style="color: black;">{{ s.party.party_name }}</td>
-                        <td style="color: black;">Sales</td>
-                        <td style="color: black;">{% if s.paidoff %}{{ s.paidoff }}{% else %}0{% endif %}</td>
-                        <td style="color: black;">0</td>
+                   
                     </tr>
+                    {%endif%}
                     {% endfor %}
-            
-                    {% for p in purchase %}
-                    <tr class="clickable-row" data-href="details_purchasebill/{{ p.id }}">
-                        <td style="color: black;">{{ p.billdate | date:'d-m-Y' }}</td>
-                        <td style="color: black;">{{ p.billno }}</td>
-                        <td style="color: black;">{{ p.party.party_name }}</td>
-                        <td style="color: black;">Purchase</td>
-                        <td style="color: black;">0</td>
-                        <td style="color: black;">{% if p.grandtotal %}{{ p.grandtotal }}{% else %}0{% endif %}</td>
+
+                    {% for so in sorder %}
+                    {% if so.paid != "0.00" %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{so.orderdate | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >-</td>
+                        <td class="clickable-row" style="color: black;" >{{so.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >SALES ORDER</td>
+                        <td class="clickable-row" style="color: black;" >{{so.paid}}</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+                   
                     </tr>
+                    {%endif%}
                     {% endfor %}
+
+                    {% for sc in scredit %}
+                    {% if sc.advance != "0.00" %}
+
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{sc.date | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >{{sc.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >CREDIT NOTE</td>
+                        <td class="clickable-row" style="color: black;" >{{sc.advance}}</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+
+                       
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+                    {% for ex in exp %}
+                    {% if ex.paid != "0.00" %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{ex.expense_date | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >{{ex.party_id.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >EXPENSE</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+                        <td class="clickable-row" style="color: black;" >{{ex.paid}}</td>
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+
+                     {% for l in loan %}
+                     {% if l.loan_amount != "0" %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{l.date | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >-</td>
+                        <td class="clickable-row" style="color: black;" >{{l.account_name}}</td>
+                        <td class="clickable-row" style="color: black;" >LOAN ACCOUNT</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+                        <td class="clickable-row" style="color: black;" >{{l.loan_amount}}</td>
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+
+               <!-- {% for la in loanadd %}
+               {% if la.transaction_type == 'Additional Loan' %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{la.date | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >-</td>
+                        <td class="clickable-row" style="color: black;" >{{la.loan_account.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >ADDITIONAL LOAN</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+                        <td class="clickable-row" style="color: black;" >{{la.payment}}</td>
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %}
+
+                    {% for lr in lrepay %}
+                    {% if lr.transaction_type == 'EMI' %}
+                    <tr>
+                        <td class="clickable-row" style="color: black;" >{{lr.date | date:'d-m-Y'}}</td>
+                      
+                        <td class="clickable-row" style="color: black;" >-</td>
+                        <td class="clickable-row" style="color: black;" >{{lr.loan_account.party.party_name}}</td>
+                        <td class="clickable-row" style="color: black;" >EMI PAID</td>
+                        <td class="clickable-row" style="color: black;" >{{lr.payment}}</td>
+                        <td class="clickable-row" style="color: black;" >0</td>
+
+                    
+                   
+                    </tr>
+                    {%endif%}
+                    {% endfor %} -->
+                  <!-- Assuming you're looping through cash payments in your template context -->
+                  {% for paymentout in paymentouts %}
+                   
+                  <tr>
+                    <td> {{ paymentout.billdate| date:'d-m-Y' }}</td>
+                    <td>{{paymentout.ref_no}}</td>
+                    <td>{{paymentout.party.party_name}}</td>
+                    <td>PAYMENT OUT</td>
+                    <td>0</td>
+                    <!-- Retrieve PaymentOutDetails related to this PaymentOut -->
+                    {% for paymentout_detail in paymentout.paymentoutdetails_set.all %}
+                           
+                                <td>{{ paymentout_detail.paid }}</td>
+                         {% endfor %}
+                            
+                </tr>
+              
+                    {% endfor %}
+
                 </tbody>
             </table>
             
